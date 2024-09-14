@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LemeScript Editor</title>
+    <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+</head>
+<body>
+    <header>
+        <h1>LemeScript Editor</h1>
+    </header>
+    <main>
+        <div id="editor-container">
+            <div id="toolbar">
+                <button id="docsButton">Docs</button>
+                <button id="runButton">Run</button>
+                <button id="stopButton">Stop</button>
+            </div>
+            <textarea id="codeEditor" placeholder="Escreva seu código LemeScript aqui..."></textarea>
+        </div>
+        <div id="output-container">
+            <h2>Output</h2>
+            <div id="output"></div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 LemeScript. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Carregue o CodeMirror via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.js"></script>
+
+    <script>
+        // Define o modo LemeScript estendendo o modo JavaScript
+        function defineLemeScriptMode() {
+            CodeMirror.defineMode('lemescript', function(config, parserConfig) {
+                var jsMode = CodeMirror.getMode(config, "javascript");
+
+                return {
+                    startState: function() {
+                        return {
+                            jsState: CodeMirror.startState(jsMode)
+                        };
+                    },
+                    token: function(stream, state) {
+                        if (stream.match(/se|entao|fim|log|entrada/)) {
+                            return 'keyword';  // Destaque para palavras-chave do LemeScript
+                        }
+                        return jsMode.token(stream, state.jsState);  // Use o modo JavaScript para o resto
+                    }
+                };
+            });
+        }
+
+        // Define a classe Transpiler
+        class Transpiler {
+            constructor(editor, output) {
+                this.editor = editor;
+                this.output = output;
+                this.intervalId = null;
+            }
+
+            translate(code) {
+                // Substitui as palavras-chave de LemeScript por JavaScript
+                let transpiledCode = code
+                    .replace(/se\s+(.*?)\s+{/g, 'if ($1) {')
+                    .replace(/entao/g, '')
+                    .replace(/fim/g, '}')
+                    .replace(/log/g, 'console.log')
+                    .replace(/entrada/g, 'prompt');
+
+                return transpiledCode;
+            }
+
+            run() {
+                if (this.intervalId !== null) {
+                    // Já está executando, não inicie outro intervalo
+                    return;
+                }
+
+                const code = this.editor.getValue();
+                const jsCode = this.translate(code);
+
+                // Captura a saída de console.log
+                const originalConsoleLog = console.log;
+                console.log = (...args) => {
+                    this.output.textContent += args.join(' ') + '\n';
+                };
+
+                // Limpa o conteúdo de saída antes de executar o novo código
+                this.output.textContent = '';
+
+                // Executa o código em intervalos regulares
+                this.intervalId = setInterval(() => {
+                    try {
+                        eval(jsCode);
+                        // Código executado, parar o intervalo
+                        clearInterval(this.intervalId);
+                        this.intervalId = null;
+                        // Restaura o console.log original
+                        console.log = originalConsoleLog;
+                    } catch (error) {
+                        this.output.textContent = `Erro: ${error.message}`;
+                        clearInterval(this.intervalId);
+                        this.intervalId = null;
+                        // Restaura o console.log original
+                        console.log = originalConsoleLog;
+                    }
+                }, 0); // Executa o código imediatamente
+            }
+
+            stop() {
+                if (this.intervalId !== null) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                    this.output.textContent = 'Execução parada';
+                }
+            }
+        }
+
+        // Chama a função para definir o modo LemeScript
+        defineLemeScriptMode();
+
+        // Inicializa o editor CodeMirror
+        const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+            lineNumbers: true,
+            mode: "lemescript",  // Modo LemeScript customizado
+            theme: 'dracula',
+        });
+
+        const output = document.getElementById('output');
+        const transpiler = new Transpiler(editor, output);
+
+        document.getElementById('runButton').addEventListener('click', () => {
+            transpiler.run();
+        });
+
+        document.getElementById('stopButton').addEventListener('click', () => {
+            transpiler.stop();
+        });
+
+        document.getElementById('docsButton').addEventListener('click', () => {
+            window.location.href = 'docs.html'; // Navega para a página de documentação
+        });
+    </script>
+</body>
+</html>
