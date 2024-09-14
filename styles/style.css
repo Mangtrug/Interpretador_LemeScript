@@ -1,0 +1,157 @@
+/* Estilo do corpo */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #1e1e1e; /* Fundo escuro estilo VSCode */
+    color: #d4d4d4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Cabeçalho */
+header {
+    background-color: #252526;
+    padding: 10px;
+    text-align: center;
+}
+
+header h1 {
+    color: #569cd6; /* Azul VSCode */
+}
+
+/* Main ajustado para dividir o editor e o output */
+main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Editor ocupa o topo da tela */
+#editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+}
+
+/* Barra de ferramentas com botões */
+#toolbar {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+
+/* Botão Run e Stop */
+#runButton,
+#stopButton {
+    background-color: #007acc; /* Azul VSCode */
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#runButton:hover,
+#stopButton:hover {
+    background-color: #005a9e;
+}
+
+#runButton:active,
+#stopButton:active {
+    background-color: #003d66;
+}
+
+/* Editor de código com estilo VSCode */
+#codeEditor {
+    flex: 1;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 10px;
+    resize: none;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    overflow: auto;
+}
+
+/* Contêiner de saída */
+#output-container {
+    flex: 1;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-top: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+}
+
+#output-container h2 {
+    color: #569cd6;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+#output {
+    flex: 1;
+    background-color: #252526;
+    color: #d4d4d4;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Rodapé */
+footer {
+    background-color: #252526;
+    color: #d4d4d4;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    border-top: 1px solid #333;
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 600px) {
+    main {
+        flex-direction: column;
+    }
+
+    #editor-container,
+    #output-container {
+        border-right: none;
+        border-bottom: 1px solid #333;
+    }
+
+    #runButton,
+    #stopButton {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+}
+/* Botão Docs */
+#docsButton {
+    background-color: #007acc; /* Azul VSCode */
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#docsButton:hover {
+    background-color: #005a9e;
+}
+
+#docsButton:active {
+    background-color: #003d66;
+}
